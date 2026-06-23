@@ -1,0 +1,16 @@
+{
+  "name": "dreamers-worldwide-bot",
+  "version": "1.0.0",
+  "description": "Dreamers Worldwide — bilingual (EN/ID) Discord bot: moderation, welcome, auto-roles",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.0",
+    "dotenv": "^16.4.5"
+  }
+}

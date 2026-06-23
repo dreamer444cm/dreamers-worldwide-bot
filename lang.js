@@ -1,0 +1,120 @@
+// ============================================================
+//  DREAMERS WORLDWIDE BOT
+//  "Dream Big. Go Live. Get Paid."
+//  Colors: Hot Pink #ff2d9b | Cyan #00e5ff | Gold #ffd700
+// ============================================================
+
+// Convert hex color to integer for Discord embeds
+const COLORS = {
+  pink: 0xff2d9b,
+  cyan: 0x00e5ff,
+  gold: 0xffd700,
+  red:  0xff0000,
+};
+
+// Bilingual strings: English (en) and Indonesian (id)
+const strings = {
+  en: {
+    // General
+    ping_title: '🏓 Pong!',
+    ping_latency: 'Bot Latency',
+    ping_api: 'API Latency',
+
+    // Welcome
+    welcome_title: '👋 Welcome to the server!',
+    welcome_desc: (member, guild) => `Hey ${member}, welcome to **${guild}**! We\'re glad to have you here.`,
+    welcome_member_count: 'Member Count',
+    welcome_member_number: (count) => `You are member #${count}`,
+    welcome_account_created: 'Account Created',
+
+    // Moderation
+    member_not_found: '❌ Member not found.',
+    cannot_kick: '❌ I cannot kick this member.',
+    cannot_ban: '❌ I cannot ban this member.',
+    cannot_timeout: '❌ I cannot timeout this member.',
+    kick_title: '👢 Member Kicked',
+    ban_title: '🔨 Member Banned',
+    timeout_title: '🔇 Member Timed Out',
+    mod_user: 'User',
+    mod_moderator: 'Moderator',
+    mod_reason: 'Reason',
+    mod_no_reason: 'No reason provided',
+    mod_messages_deleted: 'Messages Deleted',
+    mod_days: (d) => `${d} day(s)`,
+    mod_duration: 'Duration',
+    mod_minutes: (m) => `${m} minute(s)`,
+
+    // Music
+    music_not_in_voice: '❌ You need to be in a voice channel!',
+    music_searching: (q) => `🔍 Searching for **${q}**...`,
+    music_nothing_playing: '❌ Nothing is playing!',
+    music_queue_empty: '❌ The queue is empty!',
+    music_skipped: '⏭️ Skipped!',
+    music_stopped: '⏹️ Stopped and cleared the queue.',
+    music_paused: '⏸️ Paused.',
+    music_resumed: '▶️ Resumed.',
+    music_queue_title: '🎵 Music Queue',
+    music_queue_footer: (count, vol) => `${count} song(s) total | Volume: ${vol}%`,
+    music_error: (e) => `❌ Error: ${e}`,
+
+    // Error
+    command_error: '❌ An error occurred while running this command.',
+  },
+
+  id: {
+    // General
+    ping_title: '🏓 Pong!',
+    ping_latency: 'Latensi Bot',
+    ping_api: 'Latensi API',
+
+    // Welcome
+    welcome_title: '👋 Selamat datang di server!',
+    welcome_desc: (member, guild) => `Hei ${member}, selamat datang di **${guild}**! Kami senang kamu di sini.`,
+    welcome_member_count: 'Jumlah Member',
+    welcome_member_number: (count) => `Kamu adalah member ke-#${count}`,
+    welcome_account_created: 'Akun Dibuat',
+
+    // Moderation
+    member_not_found: '❌ Member tidak ditemukan.',
+    cannot_kick: '❌ Saya tidak bisa mengeluarkan member ini.',
+    cannot_ban: '❌ Saya tidak bisa memblokir member ini.',
+    cannot_timeout: '❌ Saya tidak bisa membungkam member ini.',
+    kick_title: '👢 Member Dikeluarkan',
+    ban_title: '🔨 Member Diblokir',
+    timeout_title: '🔇 Member Dibungkam',
+    mod_user: 'Pengguna',
+    mod_moderator: 'Moderator',
+    mod_reason: 'Alasan',
+    mod_no_reason: 'Tidak ada alasan',
+    mod_messages_deleted: 'Pesan Dihapus',
+    mod_days: (d) => `${d} hari`,
+    mod_duration: 'Durasi',
+    mod_minutes: (m) => `${m} menit`,
+
+    // Music
+    music_not_in_voice: '❌ Kamu harus berada di saluran suara!',
+    music_searching: (q) => `🔍 Mencari **${q}**...`,
+    music_nothing_playing: '❌ Tidak ada musik yang diputar!',
+    music_queue_empty: '❌ Antrian kosong!',
+    music_skipped: '⏭️ Dilewati!',
+    music_stopped: '⏹️ Dihentikan dan antrian dikosongkan.',
+    music_paused: '⏸️ Dijeda.',
+    music_resumed: '▶️ Dilanjutkan.',
+    music_queue_title: '🎵 Antrian Musik',
+    music_queue_footer: (count, vol) => `${count} lagu total | Volume: ${vol}%`,
+    music_error: (e) => `❌ Kesalahan: ${e}`,
+
+    // Error
+    command_error: '❌ Terjadi kesalahan saat menjalankan perintah ini.',
+  },
+};
+
+// Default language — change to 'id' for Indonesian, 'en' for English
+const DEFAULT_LANG = 'en';
+
+function t(key, lang = DEFAULT_LANG, ...args) {
+  const str = strings[lang]?.[key] ?? strings['en'][key];
+  return typeof str === 'function' ? str(...args) : str;
+}
+
+module.exports = { t, DEFAULT_LANG, COLORS };
