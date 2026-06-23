@@ -1,5 +1,4 @@
-const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const path = require('path');
+const { EmbedBuilder } = require('discord.js');
 const { welcomeChannelId, autoRoleId, language } = require('./config.js');
 const { t, COLORS } = require('./lang.js');
 
@@ -17,15 +16,11 @@ module.exports = {
     const channel = member.guild.channels.cache.get(welcomeChannelId);
     if (!channel) return;
 
-    // Bundled group art shown in the welcome embed
-    const art = new AttachmentBuilder(path.join(__dirname, 'welcome.png'), { name: 'welcome.png' });
-
     const embed = new EmbedBuilder()
       .setColor(COLORS.pink)
       .setTitle(t('welcome_title', language))
       .setDescription(t('welcome_desc', language, member, member.guild.name))
       .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-      .setImage('attachment://welcome.png')
       .addFields(
         {
           name: t('welcome_member_count', language),
@@ -41,6 +36,6 @@ module.exports = {
       .setFooter({ text: '👑 Dream Big. Go Live. Get Paid. | Dreamers Worldwide 🌐' })
       .setTimestamp();
 
-    await channel.send({ embeds: [embed], files: [art] });
+    await channel.send({ embeds: [embed] });
   },
 };
