@@ -68,8 +68,8 @@ const strings = {
     ping_api: 'Latensi API',
 
     // Welcome
-    welcome_title: '👋 Selamat datang di server!',
-    welcome_desc: (member, guild) => `Hei ${member}, selamat datang di **${guild}**! Kami senang kamu di sini.`,
+    welcome_title: '✨ Sebuah Mimpi Baru Telah Tiba ✨',
+    welcome_desc: (member, guild) => `Hei Dreamer ${member}, selamat datang di **${guild}** \u2014 ini bukan sekadar agensi, ini sebuah gerakan yang sedang tumbuh ke seluruh dunia. \ud83c\udf0d\ud83d\udc51\n\nDi sini setiap mimpi punya tempat. Kita bermimpi besar, tampil LIVE, dan bangkit bersama. Perjalananmu dimulai hari ini. \u2728\n\n\ud83d\udcdd **Langkah pertama,** kenalkan dirimu di <#1500390255692484692> dan bagikan:\n\u2022 **Namamu**\n\u2022 **Handle TikTok-mu**\n\u2022 **Mimpimu** \u2014 apa yang sedang kamu kejar?\n\nKami tidak sabar untuk melihat mimpimu menjadi nyata. \ud83d\udc96`,
     welcome_member_count: 'Jumlah Member',
     welcome_member_number: (count) => `Kamu adalah member ke-#${count}`,
     welcome_account_created: 'Akun Dibuat',
