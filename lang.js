@@ -21,8 +21,8 @@ const strings = {
     ping_api: 'API Latency',
 
     // Welcome
-    welcome_title: '👋 Welcome to the server!',
-    welcome_desc: (member, guild) => `Hey ${member}, welcome to **${guild}**! We\'re glad to have you here.`,
+    welcome_title: '✨ Welcome, Dreamer! ✨',
+    welcome_desc: (member, guild) => `Hey ${member}, welcome to **${guild}** \u2014 so glad you\'re here! \ud83c\udf0d\ud83d\udc51\n\n\ud83d\udc49 Head over to <#1518941229818183781> to get started and tell us a little about you.`,
     welcome_member_count: 'Member Count',
     welcome_member_number: (count) => `You are member #${count}`,
     welcome_account_created: 'Account Created',
@@ -68,8 +68,8 @@ const strings = {
     ping_api: 'Latensi API',
 
     // Welcome
-    welcome_title: '✨ Sebuah Mimpi Baru Telah Tiba ✨',
-    welcome_desc: (member, guild) => `Hei Dreamer ${member}, selamat datang di **${guild}** \u2014 ini bukan sekadar agensi, ini sebuah gerakan yang sedang tumbuh ke seluruh dunia. \ud83c\udf0d\ud83d\udc51\n\nDi sini setiap mimpi punya tempat. Kita bermimpi besar, tampil LIVE, dan bangkit bersama. Perjalananmu dimulai hari ini. \u2728\n\n\ud83d\udcdd **Langkah pertama,** kenalkan dirimu di <#1500390255692484692> dan bagikan:\n\u2022 **Namamu**\n\u2022 **Handle TikTok-mu**\n\u2022 **Mimpimu** \u2014 apa yang sedang kamu kejar?\n\nKami tidak sabar untuk melihat mimpimu menjadi nyata. \ud83d\udc96`,
+    welcome_title: '✨ Selamat Datang, Dreamer! ✨',
+    welcome_desc: (member, guild) => `Hei Dreamer ${member}, selamat datang di **${guild}** \u2014 senang kamu ada di sini! \ud83c\udf0d\ud83d\udc51\n\n\ud83d\udc49 Yuk langsung ke <#1518941229818183781> untuk memulai dan ceritakan sedikit tentang dirimu.`,
     welcome_member_count: 'Jumlah Member',
     welcome_member_number: (count) => `Kamu adalah member ke-#${count}`,
     welcome_account_created: 'Akun Dibuat',
