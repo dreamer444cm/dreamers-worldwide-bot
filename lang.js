@@ -27,6 +27,11 @@ const strings = {
     welcome_member_number: (count) => `You are member #${count}`,
     welcome_account_created: 'Account Created',
 
+    // Introduce Yourself prompt
+    intro_ping: (member) => `Hey ${member}! \ud83d\udc4b`,
+    intro_title: '✨ Introduce Yourself, Dreamer! ✨',
+    intro_desc: `Welcome to the **Dreamers Worldwide** family! \ud83c\udf0d\ud83d\udc51\n\nSo we can get to know you, drop a quick reply with these 3 things:\n\n1\ufe0f\u20e3 **Your name**\n2\ufe0f\u20e3 **Your TikTok handle** (@)\n3\ufe0f\u20e3 **What you create / go LIVE doing on TikTok**\n\nJust reply right here \u2014 we can\'t wait to meet you! \ud83d\udc96`,
+
     // Moderation
     member_not_found: '❌ Member not found.',
     cannot_kick: '❌ I cannot kick this member.',
@@ -73,6 +78,11 @@ const strings = {
     welcome_member_count: 'Jumlah Member',
     welcome_member_number: (count) => `Kamu adalah member ke-#${count}`,
     welcome_account_created: 'Akun Dibuat',
+
+    // Introduce Yourself prompt
+    intro_ping: (member) => `Hei ${member}! \ud83d\udc4b`,
+    intro_title: '✨ Kenalkan Dirimu, Dreamer! ✨',
+    intro_desc: `Selamat datang di keluarga **Dreamers Worldwide**! \ud83c\udf0d\ud83d\udc51\n\nBiar kami bisa mengenalmu, balas pesan ini dengan 3 hal berikut:\n\n1\ufe0f\u20e3 **Namamu**\n2\ufe0f\u20e3 **Handle TikTok-mu** (@)\n3\ufe0f\u20e3 **Apa yang kamu buat / lakukan saat LIVE di TikTok**\n\nLangsung balas di sini ya \u2014 kami nggak sabar mengenalmu! \ud83d\udc96`,
 
     // Moderation
     member_not_found: '❌ Member tidak ditemukan.',
