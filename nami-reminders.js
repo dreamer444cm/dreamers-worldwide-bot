@@ -1,19 +1,19 @@
 // ============================================================
-//  nami-reminders.js  —  Reminders & Channel Alerts
+//  nami-reminders.js  —  Reminders, Alerts & Handled-Tracker
 //  Switched on from index.js with:  setupNami(client);
 //  -----------------------------------------------------------
 //   1. Daily check-in nudges (Dreamers AM + Pinnacle PM)
 //   2. Alert the moment a creator posts in a watched channel
-//   3. On-demand:  !remind 3d <note>   in your private channel
+//      → each alert gets a ✅ button. Tap it when handled.
+//   3. Open-items safety net: a daily recap of anything not yet
+//      ✅'d, plus type "open" anytime for an instant list.
+//   4. On-demand:  remind 3d <note>  (with or without "!")
 // ============================================================
 
 const fs = require('fs');
 const { EmbedBuilder } = require('discord.js');
 
 // ----------------------- CONFIG -----------------------------
-// Already filled in. To change a reminder time, edit hour/minute
-// (24-hour clock: 8pm = 20, 9pm = 21).
-
 const CONFIG = {
   alertsChannelId: '1519491630380355604',   // 🔒reminders⏰🔒 — where Nami pings you
 
@@ -40,6 +40,13 @@ const CONFIG = {
       message: 'US prime time — sweep your channels and check on your Pinnacle creators.',
     },
   ],
+
+  // Morning recap of anything still open (not yet ✅'d)
+  openItemsDigest: {
+    enabled: true,
+    hour: 9, minute: 0,               // 9:00 AM Eastern
+    timezone: 'America/New_York',
+  },
 
   dataFile: '/data/nami-reminders.json',
   brandColor: 0xff2d9b,
@@ -79,11 +86,53 @@ function parseDuration(str) {
   if (!m) return null;
   return +m[1] * { m: 60000, h: 3600000, d: 86400000, w: 604800000 }[m[2].toLowerCase()];
 }
+// returns the sent message (so we can react to it)
 async function sendToAlerts(client, payload) {
   try {
     const ch = await client.channels.fetch(CONFIG.alertsChannelId);
-    await ch.send(payload);
-  } catch (e) { console.error('[Nami] Alert send failed:', e.message); }
+    return await ch.send(payload);
+  } catch (e) { console.error('[Nami] Alert send failed:', e.message); return null; }
+}
+
+// ----- the handled-tracker: Discord reactions ARE the memory -----
+async function getOpenItems(client) {
+  const ch = await client.channels.fetch(CONFIG.alertsChannelId);
+  const msgs = await ch.messages.fetch({ limit: 50 });
+  const open = [];
+  for (const [, m] of msgs) {
+    if (m.author.id !== client.user.id) continue;            // only Nami's messages
+    const title = m.embeds[0]?.title || '';
+    if (!title.startsWith('🆕')) continue;                   // only creator-post alerts
+    const react = m.reactions.cache.find(r => r.emoji.name === '✅');
+    let handled = false;
+    if (react && react.count > 1) {                          // someone besides Nami reacted
+      try { const users = await react.users.fetch(); handled = users.has(CONFIG.ownerUserId); }
+      catch (e) { /* ignore */ }
+    }
+    if (!handled) open.push(m);
+  }
+  return open.reverse(); // oldest first
+}
+
+async function postOpenDigest(client) {
+  let open;
+  try { open = await getOpenItems(client); }
+  catch (e) { console.error('[Nami] Digest failed:', e.message); return; }
+  const ch = await client.channels.fetch(CONFIG.alertsChannelId);
+  if (!open.length) {
+    const embed = new EmbedBuilder().setColor(CONFIG.brandColor)
+      .setTitle('✨ All caught up')
+      .setDescription("Nothing open right now — everything's been handled. 🦋");
+    return ch.send({ embeds: [embed] });
+  }
+  const lines = open.map((m, i) => {
+    const title = (m.embeds[0]?.title || 'Alert').replace(/^🆕\s*/, '');
+    return `**${i + 1}.** ${title} — [open](${m.url})`;
+  });
+  const embed = new EmbedBuilder().setColor(CONFIG.brandColor)
+    .setTitle(`📋 Still open (${open.length})`)
+    .setDescription(lines.join('\n') + '\n\nTap ✅ on each alert once it\'s handled.');
+  return ch.send({ content: `<@${CONFIG.ownerUserId}>`, embeds: [embed] });
 }
 
 function setupNami(client) {
@@ -107,6 +156,15 @@ function setupNami(client) {
         sendToAlerts(client, { content: `<@${CONFIG.ownerUserId}>`, embeds: [embed] });
       }
     }
+    // ----- morning open-items recap -----
+    const od = CONFIG.openItemsDigest;
+    if (od && od.enabled) {
+      const t = nowInZone(od.timezone);
+      if (t.hour === od.hour && t.minute === od.minute && od._lastDate !== t.date) {
+        od._lastDate = t.date;
+        postOpenDigest(client);
+      }
+    }
     // ----- due on-demand reminders -----
     const now = Date.now();
     const due = pending.filter(r => r.due <= now);
@@ -121,30 +179,38 @@ function setupNami(client) {
     }
   }, 60 * 1000);
 
-  // ----- creator-post watcher + !remind command -----
+  // ----- commands + creator-post watcher -----
   client.on('messageCreate', async (msg) => {
     if (msg.author.bot) return;
 
-    if (msg.channel.id === CONFIG.alertsChannelId &&
-        msg.author.id === CONFIG.ownerUserId &&
-        msg.content.startsWith('!remind')) {
-      const rest = msg.content.slice('!remind'.length).trim();
-      if (rest === 'list') {
-        if (!pending.length) return msg.reply('No reminders set.');
-        return msg.reply(pending.sort((a, b) => a.due - b.due)
-          .map((r, i) => `**${i + 1}.** <t:${Math.floor(r.due / 1000)}:R> — ${r.note}`).join('\n'));
+    // commands only from you, in your private channel
+    if (msg.channel.id === CONFIG.alertsChannelId && msg.author.id === CONFIG.ownerUserId) {
+      const body = msg.content.trim();
+
+      // "open" — show what's still unhandled, right now
+      if (/^open\b/i.test(body)) { await postOpenDigest(client); return; }
+
+      // "remind 3d <note>" — forgiving: any case, ! optional
+      if (/^!?\s*remind\b/i.test(body)) {
+        const rest = body.replace(/^!?\s*remind/i, '').trim();
+        if (/^list$/i.test(rest)) {
+          if (!pending.length) return msg.reply('No reminders set.');
+          return msg.reply(pending.sort((a, b) => a.due - b.due)
+            .map((r, i) => `**${i + 1}.** <t:${Math.floor(r.due / 1000)}:R> — ${r.note}`).join('\n'));
+        }
+        if (/^clear$/i.test(rest)) { pending = []; saveReminders(); return msg.reply('Cleared.'); }
+        const sp = rest.indexOf(' ');
+        const dur = sp === -1 ? rest : rest.slice(0, sp);
+        const note = sp === -1 ? '' : rest.slice(sp + 1).trim();
+        const ms = parseDuration(dur);
+        if (!ms || !note) return msg.reply("Try: `remind 3d Check Maya's payout` (units: m, h, d, w).");
+        const dueAt = Date.now() + ms;
+        pending.push({ due: dueAt, note }); saveReminders();
+        return msg.reply(`Got it — I'll remind you <t:${Math.floor(dueAt / 1000)}:R>.`);
       }
-      if (rest === 'clear') { pending = []; saveReminders(); return msg.reply('Cleared.'); }
-      const sp = rest.indexOf(' ');
-      const dur = sp === -1 ? rest : rest.slice(0, sp);
-      const note = sp === -1 ? '' : rest.slice(sp + 1).trim();
-      const ms = parseDuration(dur);
-      if (!ms || !note) return msg.reply("Try: `!remind 3d Check Maya's payout` (units: m, h, d, w).");
-      const dueAt = Date.now() + ms;
-      pending.push({ due: dueAt, note }); saveReminders();
-      return msg.reply(`Got it — I'll remind you <t:${Math.floor(dueAt / 1000)}:R>.`);
     }
 
+    // creator-post watcher
     const watched = CONFIG.watchedChannels.find(w => w.id === msg.channel.id);
     if (!watched) return;
     const text = msg.content && msg.content.length
@@ -160,10 +226,11 @@ function setupNami(client) {
       .setDescription(text)
       .setTimestamp(msg.createdTimestamp);
     if (link) embed.setURL(link);
-    sendToAlerts(client, { content: `<@${CONFIG.ownerUserId}>`, embeds: [embed] });
+    const sent = await sendToAlerts(client, { content: `<@${CONFIG.ownerUserId}>`, embeds: [embed] });
+    if (sent) sent.react('✅').catch(() => {});   // the tappable "handled" button
   });
 
-  console.log('[Nami] Reminders & creator alerts are live.');
+  console.log('[Nami] Reminders, alerts & handled-tracker are live.');
 }
 
 module.exports = { setupNami };
