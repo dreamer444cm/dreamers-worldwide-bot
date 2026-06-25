@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { token } = require('./config.js');
+const { setupNami } = require('./nami-reminders');   // ← Nami reminders & alerts
 const fs = require('fs');
 const path = require('path');
 
@@ -35,5 +36,8 @@ for (const file of files.filter(f => f.startsWith('evt.'))) {
     client.on(event.name, (...args) => event.execute(...args, client));
   }
 }
+
+// Switch on Nami's reminders & creator alerts
+setupNami(client);
 
 client.login(token);
