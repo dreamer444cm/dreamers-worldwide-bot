@@ -2,6 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { token } = require('./config.js');
 const { setupNami } = require('./nami-reminders');   // ← Nami reminders & alerts
+const { setupDiamonds } = require('./nami-diamonds'); // ← Diamond & milestone tracker
 const fs = require('fs');
 const path = require('path');
 
@@ -39,5 +40,8 @@ for (const file of files.filter(f => f.startsWith('evt.'))) {
 
 // Switch on Nami's reminders & creator alerts
 setupNami(client);
+
+// Switch on the diamond & milestone tracker
+setupDiamonds(client);
 
 client.login(token);
