@@ -1,6 +1,6 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { token } = require('./config.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { token, clientId, guildId } = require('./config.js');
 const { setupNami } = require('./nami-reminders');   // ← Nami reminders & alerts
 const { setupDiamonds } = require('./nami-diamonds'); // ← Diamond & milestone tracker
 const fs = require('fs');
@@ -21,10 +21,12 @@ client.commands = new Collection();
 const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.js'));
 
 // Load commands: files named cmd.*.js
+const commandData = [];
 for (const file of files.filter(f => f.startsWith('cmd.'))) {
   const command = require(path.join(__dirname, file));
   if (command.data && command.execute) {
     client.commands.set(command.data.name, command);
+    commandData.push(command.data.toJSON());
   }
 }
 
@@ -38,10 +40,30 @@ for (const file of files.filter(f => f.startsWith('evt.'))) {
   }
 }
 
+// ----- Auto-register slash commands with Discord on every startup -----
+// This means you NEVER have to manually run deploy-commands.js again.
+// Any new cmd.*.js file you add will register automatically on next deploy.
+async function registerCommands() {
+  try {
+    const rest = new REST({ version: '10' }).setToken(token);
+    console.log(`[Nami] Registering ${commandData.length} slash commands...`);
+    await rest.put(
+      Routes.applicationGuildCommands(clientId, guildId),
+      { body: commandData }
+    );
+    console.log('[Nami] ✅ Slash commands registered successfully!');
+  } catch (error) {
+    console.error('[Nami] ❌ Failed to register slash commands:', error);
+  }
+}
+
 // Switch on Nami's reminders & creator alerts
 setupNami(client);
 
 // Switch on the diamond & milestone tracker
 setupDiamonds(client);
 
-client.login(token);
+// Register commands, then log in
+registerCommands().then(() => {
+  client.login(token);
+});
