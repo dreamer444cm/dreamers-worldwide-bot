@@ -1,16 +1,15 @@
 {
   "name": "dreamers-worldwide-bot",
   "version": "1.0.0",
-  "description": "Dreamers Worldwide — bilingual (EN/ID) Discord bot: moderation, welcome, auto-roles",
+  "description": "Nami — Bilingual Discord bot for Dreamers Worldwide",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "engines": {
-    "node": ">=18"
-  },
   "dependencies": {
     "discord.js": "^14.15.0",
+    "distube": "^4.2.0",
+    "@distube/yt-dlp": "^1.3.0",
     "dotenv": "^16.4.5"
   }
 }
