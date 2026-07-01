@@ -1,7 +1,5 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
-const { DisTube } = require('distube');
-const { YtDlpPlugin } = require('@distube/yt-dlp');
 const { token, clientId, guildId } = require('./config.js');
 const { setupNami } = require('./nami-reminders');
 const { setupDiamonds } = require('./nami-diamonds');
@@ -18,18 +16,14 @@ const client = new Client({
   ],
 });
 
-// DisTube music engine
-client.distube = new DisTube(client, {
-  plugins: [new YtDlpPlugin()],
-});
-
 client.commands = new Collection();
 
 const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.js'));
 
-// Load commands: files named cmd.*.js
+// Load commands: files named cmd.*.js (skip music commands for now)
+const musicCommands = ['cmd.play.js','cmd.skip.js','cmd.stop.js','cmd.pause.js','cmd.resume.js','cmd.queue.js'];
 const commandData = [];
-for (const file of files.filter(f => f.startsWith('cmd.'))) {
+for (const file of files.filter(f => f.startsWith('cmd.') && !musicCommands.includes(f))) {
   const command = require(path.join(__dirname, file));
   if (command.data && command.execute) {
     client.commands.set(command.data.name, command);
@@ -46,19 +40,6 @@ for (const file of files.filter(f => f.startsWith('evt.'))) {
     client.on(event.name, (...args) => event.execute(...args, client));
   }
 }
-
-// DisTube events
-client.distube
-  .on('playSong', (queue, song) => {
-    queue.textChannel?.send(`▶️ Now playing / Memutar: **${song.name}** — \`${song.formattedDuration}\``);
-  })
-  .on('addSong', (queue, song) => {
-    queue.textChannel?.send(`➕ Added to queue / Ditambahkan: **${song.name}**`);
-  })
-  .on('error', (channel, error) => {
-    channel?.send(`❌ Music error: ${error.message}`);
-    console.error('[DisTube]', error);
-  });
 
 // Auto-register slash commands on every startup
 async function registerCommands() {
