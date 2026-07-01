@@ -5,7 +5,7 @@
 //   1. Log monthly diamonds per creator via /logdiamonds
 //   2. Check a creator's current month total + next milestone
 //   3. See who's close to their next tier (within a threshold)
-//   4. Auto-alert in a channel when a creator crosses a
+//   4. Auto-alert in public channel when a creator crosses a
 //      milestone for the first time that month
 //   5. Totals reset automatically each new calendar month,
 //      but past months stay in history for records
@@ -16,8 +16,11 @@ const { EmbedBuilder } = require('discord.js');
 
 // ----------------------- CONFIG -----------------------------
 const CONFIG = {
-  // Where milestone-crossed celebrations get posted (set to your alerts/announcements channel)
-  alertsChannelId: '1519491630380355604',
+  // 🔒 Private channel — logging confirmations (you only)
+  alertsChannelId: '1521453282067877929',
+
+  // 🏆 Public channel — milestone celebrations (whole server sees)
+  milestoneChannelId: '1521657137170747444',
 
   // Diamond milestone tiers (cumulative, in diamonds for the month)
   milestones: [10000, 30000, 50000, 100000, 200000, 500000, 1000000],
@@ -28,13 +31,6 @@ const CONFIG = {
 // ------------------------------------------------------------
 
 let data = { creators: {} };
-// Shape:
-// data.creators[creatorKey] = {
-//   name: "Maya",
-//   months: {
-//     "2026-06": { total: 42000, milestonesHit: [10000, 30000] }
-//   }
-// }
 
 function loadData() {
   try {
@@ -80,8 +76,6 @@ function formatNumber(n) {
   return n.toLocaleString('en-US');
 }
 
-// Adds diamonds to a creator's current month total.
-// Returns { creator, monthData, newlyHitMilestones }
 function logDiamonds(name, amount) {
   const monthKey = currentMonthKey();
   const creator = getOrCreateCreator(name);
@@ -114,7 +108,6 @@ function getCreatorStatus(name) {
   };
 }
 
-// Returns all creators sorted by how close they are to their next milestone
 function getCloseToMilestone(withinPercent = 20) {
   const monthKey = currentMonthKey();
   const results = [];
@@ -126,7 +119,6 @@ function getCloseToMilestone(withinPercent = 20) {
     if (!next) continue;
     const prevMilestone = [...CONFIG.milestones].reverse().find(m => m <= monthData.total) || 0;
     const range = next - prevMilestone;
-    const progress = monthData.total - prevMilestone;
     const percentRemaining = ((next - monthData.total) / range) * 100;
     if (percentRemaining <= withinPercent) {
       results.push({
@@ -141,17 +133,21 @@ function getCloseToMilestone(withinPercent = 20) {
   return results.sort((a, b) => a.remaining - b.remaining);
 }
 
+// Posts to PUBLIC milestone channel — whole server sees this
 async function announceMilestone(client, creatorName, milestone) {
   try {
-    const ch = await client.channels.fetch(CONFIG.alertsChannelId);
+    const ch = await client.channels.fetch(CONFIG.milestoneChannelId);
     const embed = new EmbedBuilder()
       .setColor(CONFIG.brandColor)
-      .setTitle('🎉 Milestone Reached!')
-      .setDescription(`**${creatorName}** just crossed **${formatNumber(milestone)} 💎** this month!\n\n🇮🇩 **${creatorName}** baru saja mencapai **${formatNumber(milestone)} 💎** bulan ini!`)
-      .setFooter({ text: 'Dream Big · Go Live · Get Paid' })
+      .setTitle('🎉 Milestone Reached! / Pencapaian Tercapai!')
+      .setDescription(
+        `**${creatorName}** just crossed **${formatNumber(milestone)} 💎** this month! Keep going! 🔥\n\n` +
+        `🇮🇩 **${creatorName}** baru saja melewati **${formatNumber(milestone)} 💎** bulan ini! Terus semangat! 🔥`
+      )
+      .setFooter({ text: '👑 Dream Big. Go Live. Get Paid. | Dreamers Worldwide 🌐' })
       .setTimestamp();
     await ch.send({ embeds: [embed] });
-  } catch (e) { console.error('[Nami Diamonds] Announce failed:', e.message); }
+  } catch (e) { console.error('[Nami Diamonds] Milestone announce failed:', e.message); }
 }
 
 function setupDiamonds(client) {
