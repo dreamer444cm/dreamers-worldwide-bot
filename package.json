@@ -1,4 +1,4 @@
-
+{
   "name": "dreamers-worldwide-bot",
   "version": "1.0.0",
   "description": "Nami — Bilingual Discord bot for Dreamers Worldwide",
@@ -8,8 +8,6 @@
   },
   "dependencies": {
     "discord.js": "^14.15.0",
-    "distube": "^4.0.0",
-    "@distube/yt-dlp": "^1.2.0",
     "dotenv": "^16.4.5"
   }
 }
