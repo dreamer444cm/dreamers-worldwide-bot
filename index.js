@@ -20,8 +20,10 @@ client.commands = new Collection();
 
 const files = fs.readdirSync(__dirname).filter(f => f.endsWith('.js'));
 
-// Load commands: files named cmd.*.js (skip music commands for now)
+// Music commands require DisTube — skip until music is enabled
 const musicCommands = ['cmd.play.js','cmd.skip.js','cmd.stop.js','cmd.pause.js','cmd.resume.js','cmd.queue.js'];
+
+// Auto-load all cmd.*.js files (except music for now)
 const commandData = [];
 for (const file of files.filter(f => f.startsWith('cmd.') && !musicCommands.includes(f))) {
   const command = require(path.join(__dirname, file));
@@ -31,7 +33,7 @@ for (const file of files.filter(f => f.startsWith('cmd.') && !musicCommands.incl
   }
 }
 
-// Load events: files named evt.*.js
+// Auto-load all evt.*.js files
 for (const file of files.filter(f => f.startsWith('evt.'))) {
   const event = require(path.join(__dirname, file));
   if (event.once) {
@@ -56,9 +58,27 @@ async function registerCommands() {
   }
 }
 
-setupNami(client);
-setupDiamonds(client);
+// ── Core systems ─────────────────────────────────────────────
+setupNami(client);      // Reminders, alerts & handled-tracker
+setupDiamonds(client);  // Diamond & milestone tracker
 
+// ── Package 1: Creator self-service ──────────────────────────
+// Activates automatically once nami-creators.js is uploaded
+if (fs.existsSync(path.join(__dirname, 'nami-creators.js'))) {
+  const { setupCreators } = require('./nami-creators');
+  setupCreators(client);
+  console.log('[Nami] ✅ Creator self-service is live.');
+}
+
+// ── Package 2: Recruiter tracking ────────────────────────────
+// Activates automatically once nami-recruiters.js is uploaded
+if (fs.existsSync(path.join(__dirname, 'nami-recruiters.js'))) {
+  const { setupRecruiters } = require('./nami-recruiters');
+  setupRecruiters(client);
+  console.log('[Nami] ✅ Recruiter tracking is live.');
+}
+
+// ── Start ─────────────────────────────────────────────────────
 registerCommands().then(() => {
   client.login(token);
 });
