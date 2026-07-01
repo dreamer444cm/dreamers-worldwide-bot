@@ -4,13 +4,13 @@ const { linkCreator, getCreator } = require('./nami-creators.js');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('linkcreator')
-    .setDescription('Link your Discord to your creator profile / Hubungkan Discord ke profil creator')
+    .setDescription('Hubungkan Discord ke profil creator / Link your Discord to your creator profile')
     .addStringOption(opt =>
-      opt.setName('name').setDescription('Your name / Namamu').setRequired(true))
+      opt.setName('name').setDescription('Namamu / Your name').setRequired(true))
     .addStringOption(opt =>
-      opt.setName('tiktok').setDescription('Your TikTok handle / Handle TikTok-mu (@)').setRequired(true))
+      opt.setName('tiktok').setDescription('Handle TikTok-mu (@) / Your TikTok handle').setRequired(true))
     .addUserOption(opt =>
-      opt.setName('user').setDescription('(Admin only) Link a different user / Hubungkan user lain')),
+      opt.setName('user').setDescription('Hubungkan user lain / (Admin only) Link a different user')),
 
   async execute(interaction) {
     const targetUser = interaction.options.getUser('user');

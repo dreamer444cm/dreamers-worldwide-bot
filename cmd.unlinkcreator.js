@@ -4,9 +4,9 @@ const { unlinkCreator, getCreator } = require('./nami-creators.js');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('unlinkcreator')
-    .setDescription('(Admin only) Unlink a creator profile / Hapus profil creator')
+    .setDescription('Hapus profil creator / (Admin only) Unlink a creator profile')
     .addUserOption(opt =>
-      opt.setName('user').setDescription('User to unlink / User yang dihapus').setRequired(true))
+      opt.setName('user').setDescription('User yang dihapus / User to unlink').setRequired(true))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {

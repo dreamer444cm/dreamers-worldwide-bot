@@ -4,7 +4,7 @@ const { checkin, getCreator, checkRequirementsMet, getStats } = require('./nami-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('checkin')
-    .setDescription('Log that you are going LIVE / Catat bahwa kamu sedang LIVE'),
+    .setDescription('Catat bahwa kamu sedang LIVE / Log that you are going LIVE'),
 
   async execute(interaction, client) {
     const result = checkin(interaction.user.id);

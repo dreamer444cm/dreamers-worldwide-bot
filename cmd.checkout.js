@@ -4,7 +4,7 @@ const { checkout, getCreator, checkRequirementsMet } = require('./nami-creators.
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('checkout')
-    .setDescription('End your LIVE session / Akhiri sesi LIVE-mu'),
+    .setDescription('Akhiri sesi LIVE-mu / End your LIVE session'),
 
   async execute(interaction, client) {
     const result = checkout(interaction.user.id);

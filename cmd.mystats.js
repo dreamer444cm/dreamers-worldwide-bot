@@ -4,7 +4,7 @@ const { getStats } = require('./nami-creators.js');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('mystats')
-    .setDescription('Check your progress this month / Cek progresmu bulan ini'),
+    .setDescription('Cek progresmu bulan ini / Check your progress this month'),
 
   async execute(interaction) {
     const stats = getStats(interaction.user.id);
